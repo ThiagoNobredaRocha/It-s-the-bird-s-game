@@ -1,37 +1,64 @@
-"""
-main.py
-Ponto de entrada — inicializa pygame e roda o loop principal.
-"""
-
 import pygame
-import settings as S
-from scenes.game_scene import GameScene
+from entities.player import Player
+from systems.settings import LARGURA, ALTURA, FPS
+# pygame setup
+pygame.init()
+tela = pygame.display.set_mode((LARGURA, ALTURA))
+clock = pygame.time.Clock()
+player = Player()
 
 
-def main():
-    pygame.init()
-    pygame.display.set_caption(S.TITLE)
-    screen = pygame.display.set_mode((S.SCREEN_W, S.SCREEN_H))
-    clock  = pygame.time.Clock()
-
-    scene = GameScene(screen)
-
+def main ():
     running = True
+    player.morto = False
+    
     while running:
-        events = pygame.event.get()
-        for ev in events:
-            if ev.type == pygame.QUIT:
+        dt = clock.tick(FPS) / 1000
+        # poll for events
+        # pygame.QUIT event means the user clicked X to close your window
+        tela.fill("#212040")
+        #player.desenhar_player(tela)
+        player.draw(tela)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 running = False
-            if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
-                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.QUIT() 
+                
+                if event.key == pygame.K_SPACE:
+                    player.mudar_direcao(dt)
+                    
+                if event.key == pygame.K_w:
+                    player.morto = True
+                    
+                if player.morto == True and event.key == pygame.K_r:
+                    player.restart(tela)
+      
+        if not player.morto:
+            player.atualizar_rastro(dt)
+            player.zigzag(dt)
+            player.morte_lateral(dt)
+        else:
+            player.game_over(tela)
+        
+        
 
-        scene.update(events)
-        scene.draw()
+        
+        # if not player.paused:
+        #     player.subir(dt)
+        #     player.zigzag(dt)
+        #     player.morte_lateral(dt)
+        # else:
+        #     player.pause(dt)
+        
+        
+        # flip() the display to put your work on screen
         pygame.display.flip()
-        clock.tick(S.FPS)
 
+    clock.tick(60)  # limits FPS to 60
     pygame.quit()
 
 
-if __name__ == "__main__":
-    main()
+main()
