@@ -1,7 +1,7 @@
 import pygame
 from systems.settings import LARGURA, ALTURA
 
-player_sprite = pygame.image.load("assets/Maguinho.png")
+#player_sprite = pygame.image.load("assets/Maguinho.png")
 
 TAMANHO_RASTRO = 30
 
@@ -71,8 +71,8 @@ class Player:
             self.raio
         )
 
-    def desenhar_player(self, tela):
-        tela.blit(player_sprite, (self.x, self.y))
+    # def desenhar_player(self, tela):
+    #     tela.blit(player_sprite, (self.x, self.y))
 
     def subir(self, dt):
         pass
@@ -113,4 +113,4 @@ class Player:
         self.rastro.clear()
 
 
-print(player_sprite.get_size())
+#print(player_sprite.get_size())
