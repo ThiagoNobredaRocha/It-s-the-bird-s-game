@@ -1,4 +1,3 @@
-# main.py
 import pygame
 from systems import settings as S
 from systems.game import Game
