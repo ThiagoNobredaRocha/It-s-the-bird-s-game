@@ -1,4 +1,3 @@
-# entities/enemies.py
 import pygame
 import math
 from systems import settings as S
