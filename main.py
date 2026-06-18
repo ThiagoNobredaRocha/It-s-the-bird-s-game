@@ -34,8 +34,6 @@ def main ():
             if checar_colisao(player, obstacle):
                 player.morto = True
 
-        
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -53,7 +51,7 @@ def main ():
                     player.restart(tela)
                     for obstacle in obstacles:
                         obstacle.restart()
-      
+
         if not player.morto:
             player.atualizar_rastro(dt)
             player.zigzag(dt)
