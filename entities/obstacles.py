@@ -9,14 +9,15 @@ RAIO_BOUNCE  = 90
 VEL_MIN      = 420
 VEL_MAX      = 620
 
-# Quantas colunas dividem a tela para o fair-spawn
-NUM_COLUNAS  = 6
-
 # Intervalo entre ondas de spawn (segundos)
 INTERVALO_SPAWN = 2.2
 
 # Quantos obstáculos por onda
 QTDE_POR_ONDA = 3
+
+# Distância horizontal mínima entre os CENTROS de dois obstáculos da mesma onda.
+# Evita que eles nasçam colados/sobrepostos mesmo com jitter.
+DISTANCIA_MIN_X = (RAIO_MORTAL * 2) + 60
 
 # Margem vertical fora da tela onde o obstáculo nasce
 MARGEM_SPAWN_Y = -80
@@ -77,10 +78,11 @@ class ObstaculoBounce:
 class SpawnManager:
     """
     Gerencia o spawn de obstáculos com fair-randomness:
-    - Divide a tela em NUM_COLUNAS colunas.
-    - A cada onda, sorteia QTDE_POR_ONDA colunas *distintas* para garantir
-      espaço sempre disponível para o player escapar.
-    - Alterna aleatoriamente entre mortal e bounce (mínimo 1 bounce por onda).
+    - Gera posições X garantindo DISTANCIA_MIN_X entre todos os obstáculos
+      da mesma onda, evitando que nasçam colados ou sobrepostos.
+    - Escalonamento vertical entre os obstáculos da mesma onda, para criar
+      gaps verticais que sinergizam com o zigzag do player.
+    - Pelo menos 1 obstáculo bounce por onda.
     """
 
     def __init__(self):
@@ -89,35 +91,47 @@ class SpawnManager:
         # dispara a primeira onda imediatamente
         self._spawnar_onda()
 
-    # largura de cada coluna
-    @property
-    def _largura_coluna(self):
-        return LARGURA // NUM_COLUNAS
+    def _gerar_posicoes_x(self):
+        """
+        Gera QTDE_POR_ONDA posições X garantindo DISTANCIA_MIN_X entre
+        quaisquer dois centros, para que obstáculos nunca nasçam colados
+        ou sobrepostos, mesmo entre tipos diferentes (mortal/bounce).
+        """
+        x_min = RAIO_MORTAL + 10
+        x_max = LARGURA - RAIO_MORTAL - 10
+
+        posicoes = []
+        tentativas_max = 200
+
+        for _ in range(QTDE_POR_ONDA):
+            for _ in range(tentativas_max):
+                candidato = random.randint(x_min, x_max)
+                if all(abs(candidato - p) >= DISTANCIA_MIN_X for p in posicoes):
+                    posicoes.append(candidato)
+                    break
+            else:
+                # não achou posição livre o suficiente; usa o que sobrar de espaço
+                # (caso extremo — espalha uniformemente como fallback)
+                if posicoes:
+                    posicoes.append(max(x_min, min(x_max, posicoes[-1] + DISTANCIA_MIN_X)))
+                else:
+                    posicoes.append(random.randint(x_min, x_max))
+
+        return posicoes
 
     def _spawnar_onda(self):
-        # escolhe colunas distintas (garante espaçamento mínimo entre obstáculos)
-        colunas = random.sample(range(NUM_COLUNAS), QTDE_POR_ONDA)
+        # posições x com distância mínima garantida entre todos os obstáculos
+        posicoes_x = self._gerar_posicoes_x()
 
         # garante pelo menos 1 bounce na onda
         idx_bounce_forcado = random.randrange(QTDE_POR_ONDA)
 
-        # ordem aleatória de "atraso vertical" — não correlaciona com a coluna,
+        # ordem aleatória de "atraso vertical" — não correlaciona com a posição x,
         # então o gap vertical aparece em posições x diferentes a cada onda
         ordem_atraso = list(range(QTDE_POR_ONDA))
         random.shuffle(ordem_atraso)
 
-        # cada obstáculo nasce mais "alto" (y mais negativo) que o anterior,
-        # criando espaçamento vertical real entre eles
-        atraso_acumulado = 0
-
-        for i, col in enumerate(colunas):
-            # posição x centrada na coluna + pequeno jitter
-            centro_coluna = col * self._largura_coluna + self._largura_coluna // 2
-            jitter = random.randint(-self._largura_coluna // 4, self._largura_coluna // 4)
-            x = centro_coluna + jitter
-            x = max(RAIO_MORTAL + 10, min(LARGURA - RAIO_MORTAL - 10, x))  # clamp
-
-            # posição na ordem de atraso (0 = primeiro a entrar, sem atraso)
+        for i, x in enumerate(posicoes_x):
             posicao_na_ordem = ordem_atraso[i]
             if posicao_na_ordem == 0:
                 atraso = 0
