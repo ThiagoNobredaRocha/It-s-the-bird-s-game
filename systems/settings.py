@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 #JANELA
 TITLE = "ZigZag Cosmic"
 LARGURA = 1550
 ALTURA = 900
 FPS = 60
+=======
+LARGURA = 1920
+ALTURA = 1280
+>>>>>>> leo
 
 #PLAYER
 PLAYER_X_INICIAL = LARGURA / 2
