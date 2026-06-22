@@ -25,7 +25,7 @@ class Enemy:
         self.y += dy * self.velocidade * dt
 
         # puxado pelo mapa
-        self.y += S.OBSTACLE_VELOCIDADE * dt / 3
+        self.y += S.OBSTACLE_VELOCIDADE * dt
 
         if self.y - self.raio > S.ALTURA:
             self.morto = True

@@ -2,7 +2,7 @@ import pygame
 import random
 from systems import settings as S
 from entities.player    import Player
-from entities.obstacles import Obstacle
+from entities.obstacles import SpawnManager
 from entities.enemies   import Enemy
 from systems.collision  import checar_colisao
 
@@ -14,11 +14,8 @@ class Game:
         self.fonte = pygame.font.SysFont("Arial", 36)
 
         # objetos
-        self.player    = Player()
-        self.obstacles = [
-            Obstacle(100, 100),
-            Obstacle(400, 0),
-        ]
+        self.player = Player()
+        self.spawn_manager = SpawnManager()
 
         # inimigos
         self.inimigos: list[Enemy] = []
@@ -35,8 +32,7 @@ class Game:
         self.tempo_spawn = 0.0
         self.inimigos.clear()
         self.player.restart(self.tela)
-        for obstacle in self.obstacles:
-            obstacle.restart()
+        self.spawn_manager.restart()
 
     def _spawnar_inimigo(self):
         x = random.randint(50, S.LARGURA - 50)
@@ -67,11 +63,14 @@ class Game:
 
     def _atualizar(self, dt):
 
-        # obstáculos
-        for obstacle in self.obstacles:
-            obstacle.atualizar(dt)
+        # obstáculos (mortais e bounce, gerenciados em ondas)
+        self.spawn_manager.atualizar(dt)
+        for obstacle in self.spawn_manager.obstaculos:
             if checar_colisao(self.player, obstacle):
-                self.player.morto = True
+                if obstacle.tipo == "bounce":
+                    self.player.aplicar_bounce()
+                else:
+                    self.player.morto = True
 
         if self.player.morto:
             return
@@ -102,8 +101,7 @@ class Game:
     def _desenhar(self):
         self.tela.fill(S.COR_FUNDO)
 
-        for obstacle in self.obstacles:
-            obstacle.draw(self.tela)
+        self.spawn_manager.draw(self.tela)
 
         for inimigo in self.inimigos:
             inimigo.draw(self.tela)

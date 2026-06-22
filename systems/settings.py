@@ -1,13 +1,8 @@
-<<<<<<< HEAD
 #JANELA
 TITLE = "ZigZag Cosmic"
 LARGURA = 1550
 ALTURA = 900
 FPS = 60
-=======
-LARGURA = 1920
-ALTURA = 1280
->>>>>>> leo
 
 #PLAYER
 PLAYER_X_INICIAL = LARGURA / 2
@@ -17,6 +12,10 @@ PLAYER_SPEED = 800
 PLAYER_SPEED_VERTICAL = 250
 PLAYER_SPEED_RASTRO = 500
 PLAYER_TAMANHO_RASTRO = 30
+
+#PLAYER - BOOST (bounce)
+PLAYER_BOOST_FATOR = 3       # multiplicador de velocidade durante o boost
+PLAYER_BOOST_DURACAO = 0.4   # segundos
 
 #OBSTACULOS
 OBSTACLE_RAIO = 120
@@ -40,3 +39,29 @@ COR_TEXTO = (255, 255, 255)
 COR_PINK = "pink"
 COR_RED = "red"
 COR_BLUE = "blue"
+COR_PLAYER_BOOST = (255, 220, 0)
+
+#OBSTACULOS - MORTAL / BOUNCE (spawn em ondas)
+RAIO_MORTAL  = 180
+RAIO_BOUNCE  = 90
+
+VEL_MIN      = 420
+VEL_MAX      = 620
+
+# Intervalo entre ondas de spawn (segundos)
+INTERVALO_SPAWN = 2.2
+
+# Quantos obstáculos por onda
+QTDE_POR_ONDA = 3
+
+# Distância horizontal mínima entre os CENTROS de dois obstáculos da mesma onda.
+# Evita que eles nasçam colados/sobrepostos mesmo com jitter.
+DISTANCIA_MIN_X = (RAIO_MORTAL * 2) + 60
+
+# Margem vertical fora da tela onde o obstáculo nasce
+MARGEM_SPAWN_Y = -80
+
+# Espaçamento vertical extra entre obstáculos da MESMA onda
+# (cada obstáculo subsequente nasce mais "atrasado" verticalmente)
+ESPACAMENTO_VERTICAL_MIN = 250
+ESPACAMENTO_VERTICAL_MAX = 450
