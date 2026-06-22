@@ -51,7 +51,7 @@ class Player:
                 )
         pygame.draw.circle(
             tela,
-            "pink",
+            S.COR_PINK,
             (self.x, self.y),
             self.raio
         )
@@ -75,7 +75,7 @@ class Player:
     def game_over(self, tela):
         pygame.draw.circle(
             tela,
-            "red",
+            S.COR_RED,
             (self.x, self.y),
             40
         )

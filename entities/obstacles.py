@@ -15,7 +15,7 @@ class Obstacle:
     def draw(self, tela):
         pygame.draw.circle(
             tela,
-            "blue",
+            S.COR_RED,
             (self.x, self.y),
             self.raio
         )

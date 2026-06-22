@@ -67,7 +67,7 @@ class Game:
 
     def _atualizar(self, dt):
 
-        # obstáculos (sempre atualizam)
+        # obstáculos
         for obstacle in self.obstacles:
             obstacle.atualizar(dt)
             if checar_colisao(self.player, obstacle):
@@ -100,7 +100,7 @@ class Game:
         self.inimigos[:] = [e for e in self.inimigos if not e.morto]
 
     def _desenhar(self):
-        self.tela.fill("#212040")  # ← sua cor original
+        self.tela.fill(S.COR_FUNDO)
 
         for obstacle in self.obstacles:
             obstacle.draw(self.tela)
@@ -117,11 +117,10 @@ class Game:
         pygame.display.flip()
 
     def _desenhar_hud(self):
-        score = self.fonte.render(f"Score: {int(self.score)}", True, "white")
-        nivel = self.fonte.render(f"Nível: {self.nivel}",     True, "white")
-        msg   = self.fonte.render("R para reiniciar",         True, "white")
+        score = self.fonte.render(f"Score: {int(self.score)}", True, S.COR_TEXTO)
+        msg   = self.fonte.render("R para reiniciar",         True, S.COR_TEXTO)
         self.tela.blit(score, (20, 20))
-        self.tela.blit(nivel, (20, 60))
+
         if self.player.morto:
             self.tela.blit(msg, (S.LARGURA // 2 - 150, S.ALTURA // 2))
 
