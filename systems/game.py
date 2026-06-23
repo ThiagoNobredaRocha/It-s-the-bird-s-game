@@ -11,7 +11,8 @@ class Game:
     def __init__(self, tela):
         self.tela  = tela
         self.clock = pygame.time.Clock()
-        self.fonte = pygame.font.SysFont("Arial", 36)
+        self.fonte = pygame.font.SysFont(S.FONTE_UI, S.FONTE_TEXTO)
+        self.fonte_score = pygame.font.SysFont(S.FONTE_UI, S.FONTE_SCORE)
 
         # objetos
         self.player = Player()
@@ -21,15 +22,17 @@ class Game:
         self.inimigos: list[Enemy] = []
 
         # estado
-        self.score       = 0.0
+        self.score       = 0
         self.nivel       = 1
         self.tempo_spawn = 0.0
+        self.tempo_score = 0.0
         self.rodando     = True
 
     def resetar(self):
-        self.score       = 0.0
+        self.score       = 0
         self.nivel       = 1
         self.tempo_spawn = 0.0
+        self.tempo_score = 0.0
         self.inimigos.clear()
         self.player.restart(self.tela)
         self.spawn_manager.restart()
@@ -41,6 +44,18 @@ class Game:
     def _atualizar_nivel(self):
         novo = int(self.score // S.NIVEL_INTERVALO) + 1
         self.nivel = min(novo, S.NIVEL_MAX)
+
+    def _adicionar_score(self, pontos):
+        self.score += pontos
+
+    def _pontuar_sobrevivencia(self, dt):
+        self.tempo_score += dt
+        while self.tempo_score >= 1.0:
+            self._adicionar_score(S.SCORE_POR_SEGUNDO)
+            self.tempo_score -= 1.0
+
+    def _formatar_score(self):
+        return f"{self.score:,}".replace(",", " ")
 
     def _processar_eventos(self):
         for event in pygame.event.get():
@@ -62,12 +77,17 @@ class Game:
                     self.resetar()
 
     def _atualizar(self, dt):
+        if self.player.morto:
+            return
 
         # obstáculos (mortais e bounce, gerenciados em ondas)
         self.spawn_manager.atualizar(dt)
         for obstacle in self.spawn_manager.obstaculos:
             if checar_colisao(self.player, obstacle):
                 if obstacle.tipo == "bounce":
+                    if not getattr(obstacle, "pontuado", False):
+                        self._adicionar_score(S.SCORE_COLETA)
+                        obstacle.pontuado = True
                     self.player.aplicar_bounce()
                 else:
                     self.player.morto = True
@@ -81,7 +101,7 @@ class Game:
         self.player.morte_lateral(dt)
 
         # score e nível
-        self.score += S.SCORE_POR_SEGUNDO * dt
+        self._pontuar_sobrevivencia(dt)
         self._atualizar_nivel()
 
         # spawn de inimigos
@@ -95,6 +115,10 @@ class Game:
             inimigo.atualizar(dt, self.player.x, self.player.y)
             if checar_colisao(self.player, inimigo):
                 self.player.morto = True
+
+        inimigos_removidos = sum(1 for e in self.inimigos if e.morto)
+        if inimigos_removidos:
+            self._adicionar_score(inimigos_removidos * S.SCORE_INIMIGO_DESTRUIDO)
 
         self.inimigos[:] = [e for e in self.inimigos if not e.morto]
 
@@ -115,7 +139,7 @@ class Game:
         pygame.display.flip()
 
     def _desenhar_hud(self):
-        score = self.fonte.render(f"Score: {int(self.score)}", True, S.COR_TEXTO)
+        score = self.fonte_score.render(f"SCORE {self._formatar_score()}", True, S.COR_TEXTO)
         msg   = self.fonte.render("R para reiniciar",         True, S.COR_TEXTO)
         self.tela.blit(score, (20, 20))
 

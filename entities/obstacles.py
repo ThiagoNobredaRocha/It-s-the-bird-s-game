@@ -36,6 +36,7 @@ class ObstaculoBounce:
         self.raio = S.RAIO_BOUNCE
         self.velocidade = velocidade
         self.tipo = "bounce"
+        self.pontuado = False
 
     def draw(self, tela):
         pygame.draw.circle(tela, (80, 200, 255), (int(self.x), int(self.y)), self.raio)
