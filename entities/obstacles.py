@@ -20,8 +20,8 @@ class ObstaculoMortal:
         # anel para destacar
         pygame.draw.circle(tela, (255, 120, 120), (int(self.x), int(self.y)), self.raio, 3)
 
-    def atualizar(self, dt):
-        self.y += self.velocidade * dt
+    def atualizar(self, dt, multiplicador_scroll=1.0):
+        self.y += self.velocidade * multiplicador_scroll * dt
 
     def fora_da_tela(self):
         return self.y - self.raio > S.ALTURA
@@ -42,8 +42,8 @@ class ObstaculoBounce:
         pygame.draw.circle(tela, (80, 200, 255), (int(self.x), int(self.y)), self.raio)
         pygame.draw.circle(tela, (180, 240, 255), (int(self.x), int(self.y)), self.raio, 3)
 
-    def atualizar(self, dt):
-        self.y += self.velocidade * dt
+    def atualizar(self, dt, multiplicador_scroll=1.0):
+        self.y += self.velocidade * multiplicador_scroll * dt
 
     def fora_da_tela(self):
         return self.y - self.raio > S.ALTURA
@@ -130,16 +130,20 @@ class SpawnManager:
             else:
                 self.obstaculos.append(ObstaculoBounce(x, y, vel))
 
-    def atualizar(self, dt):
+    def atualizar(self, dt, dificuldade=0.0):
+        multiplicador_scroll = 1 + dificuldade * S.DIFFICULTY_SCROLL_FACTOR
         for obs in self.obstaculos:
-            obs.atualizar(dt)
+            obs.atualizar(dt, multiplicador_scroll)
 
         # remove os que saíram da tela
         self.obstaculos = [o for o in self.obstaculos if not o.fora_da_tela()]
 
         # conta o tempo para a próxima onda
         self.timer += dt
-        if self.timer >= S.INTERVALO_SPAWN:
+        intervalo_spawn = S.INTERVALO_SPAWN / (
+            1 + dificuldade * S.DIFFICULTY_SPAWN_FACTOR
+        )
+        if self.timer >= intervalo_spawn:
             self.timer = 0.0
             self._spawnar_onda()
 

@@ -5,6 +5,7 @@ from entities.player    import Player
 from entities.obstacles import SpawnManager
 from entities.enemies   import Enemy
 from systems.collision  import checar_colisao
+from systems.difficulty import get_difficulty
 
 class Game:
 
@@ -26,6 +27,7 @@ class Game:
         self.nivel       = 1
         self.tempo_spawn = 0.0
         self.tempo_score = 0.0
+        self.dificuldade = self._calcular_dificuldade()
         self.rodando     = True
 
     def resetar(self):
@@ -33,6 +35,7 @@ class Game:
         self.nivel       = 1
         self.tempo_spawn = 0.0
         self.tempo_score = 0.0
+        self.dificuldade = self._calcular_dificuldade()
         self.inimigos.clear()
         self.player.restart(self.tela)
         self.spawn_manager.restart()
@@ -42,8 +45,17 @@ class Game:
         self.inimigos.append(Enemy(x))
 
     def _atualizar_nivel(self):
-        novo = int(self.score // S.NIVEL_INTERVALO) + 1
+        faixa_niveis = S.NIVEL_MAX - 1
+        novo = 1 + round(self.dificuldade * faixa_niveis)
         self.nivel = min(novo, S.NIVEL_MAX)
+
+    def _calcular_dificuldade(self):
+        return get_difficulty(
+            self.score,
+            S.DIFFICULTY_LIMIT,
+            S.DIFFICULTY_SLOPE,
+            S.DIFFICULTY_MIDPOINT,
+        )
 
     def _adicionar_score(self, pontos):
         self.score += pontos
@@ -56,6 +68,16 @@ class Game:
 
     def _formatar_score(self):
         return f"{self.score:,}".replace(",", " ")
+
+    def _remover_inimigos_mortos(self):
+        inimigos_destruidos = sum(
+            1 for e in self.inimigos
+            if e.morto and e.destruido_pelo_jogador
+        )
+        if inimigos_destruidos:
+            self._adicionar_score(inimigos_destruidos * S.SCORE_INIMIGO_DESTRUIDO)
+
+        self.inimigos[:] = [e for e in self.inimigos if not e.morto]
 
     def _processar_eventos(self):
         for event in pygame.event.get():
@@ -80,8 +102,11 @@ class Game:
         if self.player.morto:
             return
 
+        self.dificuldade = self._calcular_dificuldade()
+        self._atualizar_nivel()
+
         # obstáculos (mortais e bounce, gerenciados em ondas)
-        self.spawn_manager.atualizar(dt)
+        self.spawn_manager.atualizar(dt, self.dificuldade)
         for obstacle in self.spawn_manager.obstaculos:
             if checar_colisao(self.player, obstacle):
                 if obstacle.tipo == "bounce":
@@ -102,25 +127,29 @@ class Game:
 
         # score e nível
         self._pontuar_sobrevivencia(dt)
-        self._atualizar_nivel()
 
         # spawn de inimigos
         self.tempo_spawn += dt
-        if self.tempo_spawn >= S.ENEMY_SPAWN_INTERVALO and len(self.inimigos) < S.ENEMY_MAX:
+        intervalo_inimigo = S.ENEMY_SPAWN_INTERVALO / (
+            1 + self.dificuldade * S.DIFFICULTY_SPAWN_FACTOR
+        )
+        pode_spawnar = len(self.inimigos) < S.ENEMY_MAX
+        if self.tempo_spawn >= intervalo_inimigo and pode_spawnar:
             self._spawnar_inimigo()
             self.tempo_spawn = 0.0
 
         # inimigos — perseguem o player E são puxados pelo mapa
         for inimigo in self.inimigos:
-            inimigo.atualizar(dt, self.player.x, self.player.y)
+            inimigo.atualizar(
+                dt,
+                self.player.x,
+                self.player.y,
+                self.dificuldade,
+            )
             if checar_colisao(self.player, inimigo):
                 self.player.morto = True
 
-        inimigos_removidos = sum(1 for e in self.inimigos if e.morto)
-        if inimigos_removidos:
-            self._adicionar_score(inimigos_removidos * S.SCORE_INIMIGO_DESTRUIDO)
-
-        self.inimigos[:] = [e for e in self.inimigos if not e.morto]
+        self._remover_inimigos_mortos()
 
     def _desenhar(self):
         self.tela.fill(S.COR_FUNDO)
