@@ -36,7 +36,7 @@ class Enemy:
         velocidade_scroll = S.OBSTACLE_VELOCIDADE * (
             1 + dificuldade * S.DIFFICULTY_SCROLL_FACTOR
         )
-        self.y += velocidade_scroll * dt
+        self.y += velocidade_scroll * dt / 2
 
         if self.y - self.raio > S.ALTURA:
             self.destruir()

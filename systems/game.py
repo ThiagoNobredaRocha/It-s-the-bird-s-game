@@ -114,11 +114,11 @@ class Game:
                 if self.player.morto and event.key == pygame.K_r:
                     self.resetar()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # botão esquerdo do mouse
-                    if not self.player.morto:
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        self.player.disparar(mouse_x, mouse_y)
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+            #     if event.button == 1:  # botão esquerdo do mouse
+            #         if not self.player.morto:
+            #             mouse_x, mouse_y = pygame.mouse.get_pos()
+            #             self.player.disparar(mouse_x, mouse_y)
 
     def _atualizar(self, dt):
         if self.estado != "jogando":
@@ -130,6 +130,19 @@ class Game:
 
         self.dificuldade = self._calcular_dificuldade()
         self._atualizar_nivel()
+
+        S.PROJECTILE_COOLDOWN += dt
+        
+        mouse_buttons = pygame.mouse.get_pressed()
+        
+        if (
+            mouse_buttons[0]
+            and not self.player.morto
+            and S.PROJECTILE_COOLDOWN >= 0.15
+        ):
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.player.disparar(mouse_x, mouse_y)
+            S.PROJECTILE_COOLDOWN = 0.0
 
         # obstáculos (mortais e bounce, gerenciados em ondas)
         self.spawn_manager.atualizar(dt, self.dificuldade)
