@@ -61,6 +61,12 @@ class Game:
                 if self.player.morto and event.key == pygame.K_r:
                     self.resetar()
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # botão esquerdo do mouse
+                    if not self.player.morto:
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
+                        self.player.disparar(mouse_x, mouse_y)
+
     def _atualizar(self, dt):
 
         # obstáculos (mortais e bounce, gerenciados em ondas)
@@ -77,6 +83,7 @@ class Game:
 
         # player
         self.player.atualizar_rastro(dt)
+        self.player.atualizar_projeteis(dt)
         self.player.zigzag(dt)
         self.player.morte_lateral(dt)
 
@@ -95,6 +102,15 @@ class Game:
             inimigo.atualizar(dt, self.player.x, self.player.y)
             if checar_colisao(self.player, inimigo):
                 self.player.morto = True
+
+        # colisão entre projéteis e inimigos
+        for proj in self.player.projeteis[:]:
+            for inimigo in self.inimigos[:]:
+                if checar_colisao(proj, inimigo):
+                    inimigo.morto = True
+                    proj.morto = True
+                    self.score += S.INIMIGO_MORTO_SCORE  # pontos por derrotar inimigo
+                    break
 
         self.inimigos[:] = [e for e in self.inimigos if not e.morto]
 
@@ -117,7 +133,9 @@ class Game:
     def _desenhar_hud(self):
         score = self.fonte.render(f"Score: {int(self.score)}", True, S.COR_TEXTO)
         msg   = self.fonte.render("R para reiniciar",         True, S.COR_TEXTO)
+        instrucoes = self.fonte.render("SPACE: mudar | CLICK: disparar", True, S.COR_TEXTO)
         self.tela.blit(score, (20, 20))
+        self.tela.blit(instrucoes, (20, 60))
 
         if self.player.morto:
             self.tela.blit(msg, (S.LARGURA // 2 - 150, S.ALTURA // 2))
