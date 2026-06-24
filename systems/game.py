@@ -130,6 +130,7 @@ class Game:
         self.dificuldade = self._calcular_dificuldade()
         self._atualizar_nivel()
 
+        # Permite atirar projéteis quando segura o botão do mouse
         S.PROJECTILE_COOLDOWN += dt
         
         mouse_buttons = pygame.mouse.get_pressed()
@@ -219,10 +220,9 @@ class Game:
         )
 
         controles = [
-            ("SPACE",      "muda a direção do zigzag"),
-            ("CLICK ESQ.", "dispara projétil em direção ao mouse"),
-            ("R",          "reinicia depois de morrer"),
-            ("ESC",        "sair do jogo"),
+            ("SPACE:",      "muda a direção do zigzag"),
+            ("CLICK ESQUERDO:", "dispara projétil em direção ao mouse"),
+            ("ESC:",        "sair do jogo"),
         ]
 
         coluna_tecla_x = S.LARGURA // 2 - 20
@@ -240,7 +240,7 @@ class Game:
 
         chamada = self.fonte.render(
             "Pressione qualquer tecla ou clique para começar",
-            True, S.COR_RED
+            True, S.COR_GRAY
         )
         self.tela.blit(
             chamada,
@@ -252,7 +252,7 @@ class Game:
         msg   = self.fonte.render("ESPAÇO para reiniciar",         True, S.COR_TEXTO)
         self.tela.blit(score, (20, 20))
 
-        txt_best = self.fonte_score.render(f"BEST: {self.record}", True, S.COR_TEXTO)
+        txt_best = self.fonte_score.render(f"RECORD: {self.record}", True, S.COR_TEXTO)
         self.tela.blit(txt_best, (S.LARGURA - txt_best.get_width() - 20, 20))
 
         if self.player.morto:
