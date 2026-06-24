@@ -45,4 +45,4 @@ class Enemy:
         p1 = (self.x, self.y - self.raio)
         p2 = (self.x - self.raio, self.y + self.raio)
         p3 = (self.x + self.raio, self.y + self.raio)
-        pygame.draw.polygon(tela, S.COR_BLUE, [p1, p2, p3])
+        pygame.draw.polygon(tela, "red", [p1, p2, p3])
