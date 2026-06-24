@@ -27,18 +27,18 @@ class Game:
         self.fonte_menu    = pygame.font.SysFont(S.FONTE_UI, S.FONTE_MENU)
 
         # estado
-        self.estado      = "menu"   # "menu" | "jogando" | "game_over"
-        self.score       = 0
-        self.nivel       = 1
+        self.estado = "menu"
+        self.score = 0
+        self.nivel = 1
         self.tempo_spawn = 0.0
         self.tempo_score = 0.0
         self.dificuldade = self._calcular_dificuldade()
-        self.rodando     = True
+        self.rodando = True
 
     def resetar(self):
-        self.estado       = "jogando"
-        self.score       = 0
-        self.nivel       = 1
+        self.estado = "jogando"
+        self.score = 0
+        self.nivel = 1
         self.tempo_spawn = 0.0
         self.tempo_score = 0.0
         self.dificuldade = self._calcular_dificuldade()
@@ -108,17 +108,8 @@ class Game:
                     if not self.player.morto:
                         self.player.mudar_direcao()
 
-                # if event.key == pygame.K_w:  Uso para testes
-                #     self.player.morto = True
-
                 if self.player.morto and event.key == pygame.K_SPACE:
                     self.resetar()
-
-            # if event.type == pygame.MOUSEBUTTONDOWN:
-            #     if event.button == 1:  # botão esquerdo do mouse
-            #         if not self.player.morto:
-            #             mouse_x, mouse_y = pygame.mouse.get_pos()
-            #             self.player.disparar(mouse_x, mouse_y)
 
     def _atualizar(self, dt):
         if self.estado != "jogando":
@@ -200,22 +191,16 @@ class Game:
 
     def _desenhar(self):
         self.tela.fill(S.COR_FUNDO)
-
         if self.estado == "menu":
             self._desenhar_menu()
             pygame.display.flip()
             return
-
         self.spawn_manager.draw(self.tela)
-
         for inimigo in self.inimigos:
             inimigo.draw(self.tela)
-
         self.player.draw(self.tela)
-
         if self.player.morto:
             self.player.game_over(self.tela)
-
         self._desenhar_hud()
         pygame.display.flip()
 
@@ -233,8 +218,8 @@ class Game:
             ("ESC",        "sair do jogo"),
         ]
 
-        coluna_tecla_x = S.LARGURA // 2 - 20   # borda direita da coluna de teclas
-        coluna_desc_x  = S.LARGURA // 2 + 20   # borda esquerda da coluna de descrição
+        coluna_tecla_x = S.LARGURA // 2 - 20
+        coluna_desc_x  = S.LARGURA // 2 + 20
 
         y = S.ALTURA // 3 + 20
         for tecla, descricao in controles:

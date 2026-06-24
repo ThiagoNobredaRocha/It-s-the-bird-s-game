@@ -23,7 +23,7 @@ class Projectile:
             self.vy = (dy / distancia) * S.PROJECTILE_SPEED
         else:
             self.vx = 0
-            self.vy = -S.PROJECTILE_SPEED  # para cima se não houver distância
+            self.vy = -S.PROJECTILE_SPEED
 
     def atualizar(self, dt):
         # move na direção calculada
