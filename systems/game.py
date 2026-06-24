@@ -1,3 +1,4 @@
+import os
 import pygame
 import random
 from systems import settings as S
@@ -34,6 +35,13 @@ class Game:
         self.tempo_score = 0.0
         self.dificuldade = self._calcular_dificuldade()
         self.rodando = True
+        self.record = 0
+        if os.path.exists(S.ARQUIVO_RECORD):
+            try:
+                with open(S.ARQUIVO_RECORD, "r") as f:
+                    self.record = int(f.read().strip())
+            except:
+                pass
 
     def resetar(self):
         self.estado = "jogando"
@@ -244,8 +252,15 @@ class Game:
         msg   = self.fonte.render("ESPAÇO para reiniciar",         True, S.COR_TEXTO)
         self.tela.blit(score, (20, 20))
 
+        txt_best = self.fonte_score.render(f"BEST: {self.record}", True, S.COR_TEXTO)
+        self.tela.blit(txt_best, (S.LARGURA - txt_best.get_width() - 20, 20))
+
         if self.player.morto:
             self.tela.blit(msg, (S.LARGURA // 2 - 150, S.ALTURA // 2))
+            if self.score > self.record:
+                self.record = self.score
+                with open(S.ARQUIVO_RECORD, "w") as f:
+                    f.write(str(self.record))
 
     def rodar(self):
         while self.rodando:

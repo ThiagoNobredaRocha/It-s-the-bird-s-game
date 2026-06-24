@@ -89,3 +89,6 @@ MARGEM_SPAWN_Y = -80
 # (cada obstáculo subsequente nasce mais "atrasado" verticalmente)
 ESPACAMENTO_VERTICAL_MIN = 250
 ESPACAMENTO_VERTICAL_MAX = 450
+
+#RECORD
+ARQUIVO_RECORD = "record.txt"
