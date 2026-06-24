@@ -3,13 +3,11 @@ from systems import settings as S
 import math
 from entities.projectiles import Projectile
 
-# player_sprite = pygame.image.load("assets/Maguinho.png")
-
 class Player:
 
     def __init__(self):
         self.largura = 30
-        self.altura  = 25
+        self.altura = 25
         self.x = S.PLAYER_X_INICIAL
         self.y = S.PLAYER_Y_INICIAL
         self.raio = S.PLAYER_RAIO
@@ -20,30 +18,29 @@ class Player:
         self.vertical = S.PLAYER_SPEED_VERTICAL
         self.velocidade_rastro = S.PLAYER_SPEED_RASTRO
 
-        self.morto     = False
+        self.morto = False
         self.direcao_x = -1
         self.rastro = []
 
         # boost
-        self._boost_timer    = 0.0
-        self._boost_ativo    = False
-        self._bounce_recente = False   # evita múltiplas colisões no mesmo frame
+        self._boost_timer = 0.0
+        self._boost_ativo = False
+        self._bounce_recente = False
 
         # tiro
         self.projeteis = []
         self._tiro_cooldown = 0.0
 
-    # ── boost ──────────────────────────────────────────────────────────────────
-
+    #boost
     def aplicar_bounce(self):
         """Chamado pelo game quando há colisão com ObstaculoBounce."""
         if self._bounce_recente:
             return
-        self.direcao_x      *= -1
-        self._boost_ativo    = True
-        self._boost_timer    = S.PLAYER_BOOST_DURACAO
-        self.velocidade      = self.velocidade_base * S.PLAYER_BOOST_FATOR
-        self._bounce_recente = True   # trava até o próximo frame
+        self.direcao_x *= -1
+        self._boost_ativo = True
+        self._boost_timer = S.PLAYER_BOOST_DURACAO
+        self.velocidade = self.velocidade_base * S.PLAYER_BOOST_FATOR
+        self._bounce_recente = True
 
     def disparar(self, mouse_x, mouse_y):
         """Cria um novo projétil na posição do player em direção ao mouse."""
@@ -66,7 +63,7 @@ class Player:
             if self._boost_timer <= 0:
                 self._boost_ativo = False
                 self._boost_timer = 0.0
-                self.velocidade   = self.velocidade_base
+                self.velocidade = self.velocidade_base
 
         # atualiza cooldown de tiro
         if self._tiro_cooldown > 0:
@@ -83,8 +80,7 @@ class Player:
         if len(self.rastro) > S.PLAYER_TAMANHO_RASTRO:
             self.rastro.pop(0)
 
-    # ── draw ───────────────────────────────────────────────────────────────────
-
+    #draw
     def draw(self, tela):
         # desenha os projéteis
         for proj in self.projeteis:
@@ -120,8 +116,6 @@ class Player:
             (self.x, self.y),
             self.raio
         )
-    # def desenhar_player(self, tela):
-    #     tela.blit(player_sprite, (self.x, self.y))
 
     def subir(self, dt):
         pass
@@ -151,10 +145,10 @@ class Player:
         self.morto = False
         self.x = S.PLAYER_X_INICIAL
         self.y = S.PLAYER_Y_INICIAL
-        self.direcao_x      = -1
-        self.velocidade     = self.velocidade_base
-        self._boost_ativo   = False
-        self._boost_timer   = 0.0
+        self.direcao_x = -1
+        self.velocidade = self.velocidade_base
+        self._boost_ativo = False
+        self._boost_timer = 0.0
         self._bounce_recente = False
         self.rastro.clear()
         self.projeteis.clear()

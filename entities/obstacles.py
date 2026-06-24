@@ -3,8 +3,7 @@ from systems import settings as S
 import random
 
 
-# ── classes de obstáculo ──────────────────────────────────────────────────────
-
+#classes de obstáculo
 class ObstaculoMortal:
     """Mata o player ao colidir."""
 
@@ -49,15 +48,14 @@ class ObstaculoBounce:
         return self.y - self.raio > S.ALTURA
 
 
-# ── spawn manager ─────────────────────────────────────────────────────────────
-
+#spawn manager 
 class SpawnManager:
     """
     Gerencia o spawn de obstáculos com fair-randomness:
     - Gera posições X garantindo DISTANCIA_MIN_X entre todos os obstáculos
-      da mesma onda, evitando que nasçam colados ou sobrepostos.
+        da mesma onda, evitando que nasçam colados ou sobrepostos.
     - Escalonamento vertical entre os obstáculos da mesma onda, para criar
-      gaps verticais que sinergizam com o zigzag do player.
+        gaps verticais que sinergizam com o zigzag do player.
     - Pelo menos 1 obstáculo bounce por onda.
     """
 
@@ -123,7 +121,7 @@ class SpawnManager:
             if i == idx_bounce_forcado:
                 tipo = "bounce"
             else:
-                tipo = "mortal"  # slots extras sempre mortais
+                tipo = "mortal"
 
             if tipo == "mortal":
                 self.obstaculos.append(ObstaculoMortal(x, y, vel))

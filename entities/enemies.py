@@ -5,11 +5,11 @@ from systems import settings as S
 class Enemy:
 
     def __init__(self, x):
-        self.x          = x
-        self.y          = S.ENEMY_SPAWN_Y
-        self.raio       = S.ENEMY_RAIO
+        self.x = x
+        self.y = S.ENEMY_SPAWN_Y
+        self.raio = S.ENEMY_RAIO
         self.velocidade = S.ENEMY_SPEED
-        self.morto      = False
+        self.morto = False
         self.destruido_pelo_jogador = False
 
     def destruir(self, pelo_jogador=False):
@@ -42,7 +42,7 @@ class Enemy:
             self.destruir()
 
     def draw(self, tela):
-        p1 = (self.x,             self.y - self.raio)
+        p1 = (self.x, self.y - self.raio)
         p2 = (self.x - self.raio, self.y + self.raio)
         p3 = (self.x + self.raio, self.y + self.raio)
         pygame.draw.polygon(tela, S.COR_BLUE, [p1, p2, p3])
