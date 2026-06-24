@@ -22,7 +22,12 @@ class Game:
         # inimigos
         self.inimigos: list[Enemy] = []
 
+        # fontes do menu
+        self.fonte_titulo  = pygame.font.SysFont(S.FONTE_UI, S.FONTE_TITULO, bold=True)
+        self.fonte_menu    = pygame.font.SysFont(S.FONTE_UI, S.FONTE_MENU)
+
         # estado
+        self.estado      = "menu"   # "menu" | "jogando" | "game_over"
         self.score       = 0
         self.nivel       = 1
         self.tempo_spawn = 0.0
@@ -31,6 +36,7 @@ class Game:
         self.rodando     = True
 
     def resetar(self):
+        self.estado       = "jogando"
         self.score       = 0
         self.nivel       = 1
         self.tempo_spawn = 0.0
@@ -84,6 +90,16 @@ class Game:
             if event.type == pygame.QUIT:
                 self.rodando = False
 
+            if self.estado == "menu":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.rodando = False
+                    else:
+                        self.estado = "jogando"
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.estado = "jogando"
+                continue
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.rodando = False
@@ -92,14 +108,24 @@ class Game:
                     if not self.player.morto:
                         self.player.mudar_direcao()
 
-                if event.key == pygame.K_w:
-                    self.player.morto = True
+                # if event.key == pygame.K_w:  Uso para testes
+                #     self.player.morto = True
 
                 if self.player.morto and event.key == pygame.K_r:
                     self.resetar()
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # botão esquerdo do mouse
+                    if not self.player.morto:
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
+                        self.player.disparar(mouse_x, mouse_y)
+
     def _atualizar(self, dt):
+        if self.estado != "jogando":
+            return
+
         if self.player.morto:
+            self.estado = "game_over"
             return
 
         self.dificuldade = self._calcular_dificuldade()
@@ -118,10 +144,10 @@ class Game:
                     self.player.morto = True
 
         if self.player.morto:
+            self.estado = "game_over"
             return
-
-        # player
         self.player.atualizar_rastro(dt)
+        self.player.atualizar_projeteis(dt)
         self.player.zigzag(dt)
         self.player.morte_lateral(dt)
 
@@ -149,10 +175,23 @@ class Game:
             if checar_colisao(self.player, inimigo):
                 self.player.morto = True
 
+        # colisão entre projéteis e inimigos
+        for proj in self.player.projeteis[:]:
+            for inimigo in self.inimigos[:]:
+                if not inimigo.morto and checar_colisao(proj, inimigo):
+                    inimigo.destruir(pelo_jogador=True)
+                    proj.morto = True
+                    break
+
         self._remover_inimigos_mortos()
 
     def _desenhar(self):
         self.tela.fill(S.COR_FUNDO)
+
+        if self.estado == "menu":
+            self._desenhar_menu()
+            pygame.display.flip()
+            return
 
         self.spawn_manager.draw(self.tela)
 
@@ -166,6 +205,42 @@ class Game:
 
         self._desenhar_hud()
         pygame.display.flip()
+
+    def _desenhar_menu(self):
+        titulo = self.fonte_titulo.render(S.TITLE, True, S.COR_PINK)
+        self.tela.blit(
+            titulo,
+            (S.LARGURA // 2 - titulo.get_width() // 2, S.ALTURA // 3 - 80)
+        )
+
+        controles = [
+            ("SPACE",      "muda a direção do zigzag"),
+            ("CLICK ESQ.", "dispara projétil em direção ao mouse"),
+            ("R",          "reinicia depois de morrer"),
+            ("ESC",        "sair do jogo"),
+        ]
+
+        coluna_tecla_x = S.LARGURA // 2 - 20   # borda direita da coluna de teclas
+        coluna_desc_x  = S.LARGURA // 2 + 20   # borda esquerda da coluna de descrição
+
+        y = S.ALTURA // 3 + 20
+        for tecla, descricao in controles:
+            texto_tecla = self.fonte_menu.render(tecla, True, S.COR_TEXTO)
+            texto_desc  = self.fonte_menu.render(descricao, True, S.COR_TEXTO)
+
+            self.tela.blit(texto_tecla, (coluna_tecla_x - texto_tecla.get_width(), y))
+            self.tela.blit(texto_desc, (coluna_desc_x, y))
+
+            y += S.FONTE_MENU + 14
+
+        chamada = self.fonte.render(
+            "Pressione qualquer tecla ou clique para começar",
+            True, S.COR_RED
+        )
+        self.tela.blit(
+            chamada,
+            (S.LARGURA // 2 - chamada.get_width() // 2, y + 40)
+        )
 
     def _desenhar_hud(self):
         score = self.fonte_score.render(f"SCORE {self._formatar_score()}", True, S.COR_TEXTO)

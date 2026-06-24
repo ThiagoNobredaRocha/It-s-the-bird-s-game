@@ -1,5 +1,7 @@
 import pygame
 from systems import settings as S
+import math
+from entities.projectiles import Projectile
 
 # player_sprite = pygame.image.load("assets/Maguinho.png")
 
@@ -27,6 +29,10 @@ class Player:
         self._boost_ativo    = False
         self._bounce_recente = False   # evita múltiplas colisões no mesmo frame
 
+        # tiro
+        self.projeteis = []
+        self._tiro_cooldown = 0.0
+
     # ── boost ──────────────────────────────────────────────────────────────────
 
     def aplicar_bounce(self):
@@ -39,6 +45,18 @@ class Player:
         self.velocidade      = self.velocidade_base * S.PLAYER_BOOST_FATOR
         self._bounce_recente = True   # trava até o próximo frame
 
+    def disparar(self, mouse_x, mouse_y):
+        """Cria um novo projétil na posição do player em direção ao mouse."""
+        if self._tiro_cooldown <= 0:
+            self.projeteis.append(Projectile(self.x, self.y, mouse_x, mouse_y))
+            self._tiro_cooldown = S.PROJECTILE_COOLDOWN
+
+    def atualizar_projeteis(self, dt):
+        """Atualiza todos os projéteis e remove os que saíram da tela."""
+        for proj in self.projeteis:
+            proj.atualizar(dt)
+        self.projeteis = [p for p in self.projeteis if not p.fora_da_tela()]
+
     def _atualizar_boost(self, dt):
         # libera a trava de colisão a cada frame
         self._bounce_recente = False
@@ -49,6 +67,10 @@ class Player:
                 self._boost_ativo = False
                 self._boost_timer = 0.0
                 self.velocidade   = self.velocidade_base
+
+        # atualiza cooldown de tiro
+        if self._tiro_cooldown > 0:
+            self._tiro_cooldown -= dt
 
     def atualizar_rastro(self,dt):
         # faz os pontos antigos descerem
@@ -64,6 +86,10 @@ class Player:
     # ── draw ───────────────────────────────────────────────────────────────────
 
     def draw(self, tela):
+        # desenha os projéteis
+        for proj in self.projeteis:
+            proj.draw(tela)
+
         # desenha o rastro
         if len(self.rastro) >= 2:
             for i in range(1, len(self.rastro)):
@@ -131,3 +157,5 @@ class Player:
         self._boost_timer   = 0.0
         self._bounce_recente = False
         self.rastro.clear()
+        self.projeteis.clear()
+        self._tiro_cooldown = 0.0
