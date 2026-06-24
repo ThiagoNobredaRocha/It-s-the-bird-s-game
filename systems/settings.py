@@ -1,5 +1,5 @@
 #JANELA
-TITLE = "Placeholder name"
+TITLE = "TCHURUSBANGO"
 LARGURA = 1550
 ALTURA = 900
 FPS = 60
