@@ -111,7 +111,7 @@ class Game:
                 # if event.key == pygame.K_w:  Uso para testes
                 #     self.player.morto = True
 
-                if self.player.morto and event.key == pygame.K_r:
+                if self.player.morto and event.key == pygame.K_SPACE:
                     self.resetar()
 
             # if event.type == pygame.MOUSEBUTTONDOWN:
@@ -257,7 +257,7 @@ class Game:
 
     def _desenhar_hud(self):
         score = self.fonte_score.render(f"SCORE {self._formatar_score()}", True, S.COR_TEXTO)
-        msg   = self.fonte.render("R para reiniciar",         True, S.COR_TEXTO)
+        msg   = self.fonte.render("ESPAÇO para reiniciar",         True, S.COR_TEXTO)
         self.tela.blit(score, (20, 20))
 
         if self.player.morto:
