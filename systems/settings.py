@@ -65,6 +65,7 @@ COR_RED = "red"
 COR_BLUE = "blue"
 COR_PLAYER_BOOST = (255, 220, 0)
 COR_GRAY = "gray"
+COR_PROJETIL = "#D6D6D6"
 
 #OBSTACULOS - MORTAL / BOUNCE (spawn em ondas)
 RAIO_MORTAL = 180

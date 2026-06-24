@@ -35,7 +35,7 @@ class Projectile:
             self.morto = True
 
     def draw(self, tela):
-        pygame.draw.circle(tela, S.COR_TEXTO, (int(self.x), int(self.y)), self.raio)
+        pygame.draw.circle(tela, S.COR_PROJETIL, (int(self.x), int(self.y)), self.raio)
         # anel para destacar
         pygame.draw.circle(tela, (255, 255, 0), (int(self.x), int(self.y)), self.raio, 2)
 
