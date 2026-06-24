@@ -24,7 +24,7 @@ class Game:
 
         # fontes do menu
         self.fonte_titulo  = pygame.font.SysFont(S.FONTE_UI, S.FONTE_TITULO, bold=True)
-        self.fonte_menu    = pygame.font.SysFont(S.FONTE_UI, S.FONTE_MENU)
+        self.fonte_menu = pygame.font.SysFont(S.FONTE_UI, S.FONTE_MENU)
 
         # estado
         self.estado = "menu"
@@ -168,7 +168,6 @@ class Game:
             self._spawnar_inimigo()
             self.tempo_spawn = 0.0
 
-        # inimigos — perseguem o player E são puxados pelo mapa
         for inimigo in self.inimigos:
             inimigo.atualizar(
                 dt,
